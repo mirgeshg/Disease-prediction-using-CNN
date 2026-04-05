@@ -24,7 +24,7 @@ app.add_middleware(
 from  tensorflow.keras.models import load_model # type: ignore
 MODEL = None
 try:
-    MODEL = load_model("1.keras")
+    MODEL = tf.keras.models.load_model("1.keras", compile=False)
     print("Model loaded successfully")
 except Exception as e:
     print("Error loading model:", e)
