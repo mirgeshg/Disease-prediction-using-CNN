@@ -9,6 +9,7 @@ import numpy as np
 from fastapi.middleware.cors import CORSMiddleware
 import tensorflow as tf
 import os
+import io
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 
