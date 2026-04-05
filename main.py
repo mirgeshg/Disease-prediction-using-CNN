@@ -16,8 +16,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000",
-        "http://127.0.0.1:3000"],
+    allow_origins=["*"],
     allow_credentials=False, 
     allow_methods=["*"],
     
@@ -25,7 +24,7 @@ app.add_middleware(
 from  tensorflow.keras.models import load_model # type: ignore
 
 try:
-    MODEL = load_model(r"C:\Users\acer\Downloads\potato-disease\model\3.keras")
+    MODEL = load_model("1.keras")
     print("Model loaded successfully")
 except Exception as e:
     print("Error loading model:", e)
