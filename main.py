@@ -22,7 +22,7 @@ app.add_middleware(
     
 )
 from  tensorflow.keras.models import load_model # type: ignore
-
+MODEL = None
 try:
     MODEL = load_model("1.h5")
     print("Model loaded successfully")
@@ -44,26 +44,31 @@ def read_file_as_image(data) -> np.ndarray:
    return image
 @app.post("/predict")
 async def predict(
-        file: UploadFile = File(...)):   
+        file: UploadFile = File(...)): 
+    if MODEL is None:
+        return {"error": "Model not loaded properly"}
+
+    try:
+        image = read_file_as_image(await file.read())
+        img_batch = np.expand_dims(image, axis=0)
+        prediction = MODEL.predict(img_batch)
+
+        prediction = prediction[0]
+        prediction_class = potato[np.argmax(prediction)]
+        confidence = float(np.max(prediction))
+
+        return {
+            "class": prediction_class,
+            "confidence": confidence
+        }
+
+    except Exception as e:
+        return {"error": str(e)}        
     print("Request hitted")     
-    image = read_file_as_image(await file.read())
- #[256,256,3]the predict function doesn't take the entity as single image it takes multiple images 
-    img_batch = np.expand_dims(image,axis=0)
-    prediction = MODEL.predict(img_batch)
-    print("Raw prediction:", prediction)
-    print("Argmax index:", np.argmax(prediction))
-    print("Max value:", np.max(prediction)) 
-
-
-
-    prediction = prediction[0]
-    prediction_class = potato[np.argmax(prediction)]
-    confidence = float(np.max(prediction)*100)   
-    print( f"Predicted class: {prediction_class}, Confidence: {confidence}")
     
-    return{ 'class': prediction_class,
-    'confidence': float(confidence)/float(100)
-    }
+
+
+   
 if __name__== "__main__":
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run(app, host="0.0.0.0", port=port)
